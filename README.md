@@ -1,88 +1,52 @@
-# rosbot_ros #
+# Assignment 1
 
-ROS packages for ROSbot 2.0 and ROSbot 2.0 Pro.
-
-Demonstrations of **docker-compose** configurations are shown in [rosbot-docker](https://github.com/husarion/rosbot-docker/tree/ros1/demo) repo.
-It presents how to run an autonomous mapping and navigation demo with ROSbot and Navigation2 stack.
-
-# Quick start (simulation) #
-
-## Installation ##
-
-We assume that you are working on Ubuntu 16.04 and already have installed ROS Kinetic. If not, follow the [ROS install guide](http://wiki.ros.org/kinetic/Installation/Ubuntu)
-
-Prepare the repository:
-```bash
-cd ~
-mkdir ros_workspace
-mkdir ros_workspace/src
-cd ~/ros_workspace/src
-catkin_init_workspace
-cd ~/ros_workspace
-catkin_make
-```
-
-Above commands should execute without any warnings or errors.
-
-Clone this repository to your workspace:
-
-```bash
-cd ~/ros_workspace/src
-git clone https://github.com/husarion/rosbot_ros.git -b noetic
-```
+## Instructions
 
 Install dependencies:
 
 ```bash
-cd ~/ros_workspace
+cd ~/noetic_ws
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
 Build the workspace:
 
 ```bash
-cd ~/ros_workspace
+cd ~/noetic_ws
 catkin_make
 ```
 
-From this moment you can use rosbot simulations. Please remember that each time, when you open new terminal window, you will need to load system variables:
+#### Connect to the local network
+
+| Network name | Network password |
+| ------------ | ---------------- |
+| TP_LINK      | 03694008         |
+
+#### Run the program from the robot (ROS Melodic)
+
+Connect to the robot via SSH:
 
 ```bash
-source ~/ros_workspace/devel/setup.sh
+ssh husarion@192.168.1.10x
 ```
 
-## Creating, saving and loading the Map with Gazebo ##
+When asked, input the password: *husarion*
 
-Run the following commands below. Use the teleop to move the robot around to create an accurate and thorough map.
+> *x* is the identifier number of the robot (written on the bot)
 
-In Terminal 1, launch the Gazebo simulation:
+#### Run the program from your pc (ROS Noetic)
+
+Write this in the terminal:
 
 ```bash
-roslaunch rosbot_description rosbot_rviz_gmapping.launch
+export ROS_MASTER_URI=https://192.168.1.11x:11311
 ```
 
-In Terminal 2, start teleop and drive the ROSbot, observe in Rviz as the map is created:
+> Remember to compress the images that you want to transmit!
 
-```bash
-roslaunch rosbot_navigation rosbot_teleop.launch
-```
 
-When you are satisfied with created map, you can save it. Open new terminal and save the map to some given path: 
+## Troubleshoot
 
-```bash
-rosrun map_server map_saver -f ~/ros_workspace/src/rosbot_ros/src/rosbot_navigation/maps/test_map
-```
-
-Now to make saved map loading possible you have to close all previous terminals and run the following commands below. Once loaded, use rviz to set 2D Nav Goal and the robot will autonomously reach the indicated position
-
-In Terminal 1, launch the Gazebo simulation
-
-```bash
-roslaunch rosbot_description rosbot_rviz_amcl.launch
-```
-
->**Tip:**
->
 >If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in `/rosbot_description/urdf/rosbot_gazebo` file: <br><br>
 >Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
 next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
