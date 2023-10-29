@@ -44,6 +44,13 @@ export ROS_MASTER_URI=https://192.168.1.11x:11311
 
 > Remember to compress the images that you want to transmit!
 
+## How to run
+
+```bash
+roslaunch rosbot_gazebo rosbot_world.launch
+roslaunch rosbot_bringup rosbot_gazebo.launch
+rosrun aruco_ros marker_publisher /image:=/camera/color/image_raw
+```
 
 ## Troubleshoot
 
