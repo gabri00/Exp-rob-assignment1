@@ -272,9 +272,10 @@
     <joint_properties damping="5.0" friction="1.0"/>
   </joint>
 
-  <transmission name="astra_joint_trans" type="SimpleTransmission">
+  <transmission name="astra_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
     <actuator name="astra_joint_motor">
+      <!-- <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface> -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
     <joint name="astra_joint">
