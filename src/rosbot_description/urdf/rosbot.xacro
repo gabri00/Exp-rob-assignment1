@@ -274,13 +274,14 @@
 
   <transmission name="astra_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="astra_joint_motor">
-      <!-- <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface> -->
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
     <joint name="astra_joint">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
+    <actuator name="astra_joint_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    
   </transmission>
 
   <link name="camera_link">

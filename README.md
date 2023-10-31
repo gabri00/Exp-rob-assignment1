@@ -48,7 +48,9 @@ export ROS_MASTER_URI=https://192.168.1.11x:11311
 
 ```bash
 roslaunch rosbot_gazebo rosbot_world.launch
-rosrun aruco_ros marker_publisher /image:=/camera/color/image_raw
+rosrun aruco_ros marker_publisher 		questa parte non serve più è gia implementata all'interno del file c++ -->  /image:=/camera/color/image_raw
+rostopic pub /exp_rob/camera_position_controller/command std_msgs/Float64 "data: 0.73" 
+rosrun image_view image_view image:=/camera/color/image_raw
 ```
 
 ## Troubleshoot

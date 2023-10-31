@@ -68,7 +68,7 @@ public:
   ArucoMarkerPublisher() :
       nh_("~"), it_(nh_), useCamInfo_(true)
   {
-    image_sub_ = it_.subscribe("/image", 1, &ArucoMarkerPublisher::image_callback, this);
+    image_sub_ = it_.subscribe("/camera/color/image_raw", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
     
