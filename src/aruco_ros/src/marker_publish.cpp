@@ -41,6 +41,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
+#include "std_msgs/Bool.h"
 
 class ArucoMarkerPublisher
 {
@@ -61,6 +62,8 @@ private:
 
   image_transport::Publisher image_pub_;
   image_transport::Publisher debug_pub_;
+  
+  ros::Publisher frame_size_ack_pub_;
 
   cv::Mat inImage_;
   
@@ -71,6 +74,7 @@ public:
     image_sub_ = it_.subscribe("/camera/color/image_raw", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
+    frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
     
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -95,12 +99,12 @@ public:
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
 
-		std::cout << "The id of the detected marker detected is: ";
-        for (std::size_t i = 0; i < markers_.size(); ++i)
-        {
-          std::cout << markers_.at(i).id << " ";
-        }
-        std::cout << std::endl;
+      std::cout << "The id of the detected marker detected is: ";
+      for (std::size_t i = 0; i < markers_.size(); ++i)
+      {
+        std::cout << markers_.at(i).id << " ";
+      }
+      std::cout << std::endl;
 
       // draw detected markers on the image for visualization
       for (std::size_t i = 0; i < markers_.size(); ++i)
@@ -129,6 +133,16 @@ public:
         debug_pub_.publish(debug_msg.toImageMsg());
       }
 
+      std::cout << "The perimeter is: " << markers_[0].getPerimeter() << std::endl;
+      std::cout << "The side is: " << markers_[0].getPerimeter() / 4 << std::endl;
+      // Check if the first marker has a size of 400 and publish a boolean message
+        if (markers_[0].getPerimeter() / 4 == 400) {
+            std_msgs::Bool ack_msg;
+            ack_msg.data = true;
+            frame_size_ack_pub_.publish(ack_msg);
+        }
+
+
     }
     catch (cv_bridge::Exception& e)
     {
@@ -145,3 +159,4 @@ int main(int argc, char **argv)
 
   ros::spin();
 }
+
