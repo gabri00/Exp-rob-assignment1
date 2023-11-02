@@ -136,7 +136,7 @@ public:
       std::cout << "The perimeter is: " << markers_[0].getPerimeter() << std::endl;
       std::cout << "The side is: " << markers_[0].getPerimeter() / 4 << std::endl;
       // Check if the first marker has a size of 400 and publish a boolean message
-        if (markers_[0].getPerimeter() / 4 == 110) {
+        if (markers_[0].getPerimeter() / 4 > 110) {
             std_msgs::Bool ack_msg;
             ack_msg.data = true;
             frame_size_ack_pub_.publish(ack_msg);
