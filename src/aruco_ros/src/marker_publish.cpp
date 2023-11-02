@@ -80,7 +80,7 @@ public:
     debug_pub_ = it_.advertise("debug", 1);
     frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
     marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
-    coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_centre", 1);
+    coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_center", 1);
     
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -115,7 +115,7 @@ public:
 			id_msg.data = markers_.at(0).id;  // Assegna l'ID del marker a id_msg.data
 			coord_msg.x = markers_.at(0).getCenter().x;
 			coord_msg.y = markers_.at(0).getCenter().y;
-			coord_msg.z=0.0;
+			coord_msg.z = 0.0;
 			marker_id_pub_.publish(id_msg);
 			coordinates_center_pub_.publish(coord_msg);
       }
