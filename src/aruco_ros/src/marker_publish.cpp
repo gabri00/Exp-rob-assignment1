@@ -42,6 +42,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include "std_msgs/Bool.h"
+#include "std_msgs/Int32.h"
+#include "geometry_msgs/Point.h"
 
 class ArucoMarkerPublisher
 {
@@ -64,6 +66,8 @@ private:
   image_transport::Publisher debug_pub_;
   
   ros::Publisher frame_size_ack_pub_;
+  ros::Publisher marker_id_pub_;
+  ros::Publisher coordinates_center_pub_;
 
   cv::Mat inImage_;
   
@@ -75,6 +79,8 @@ public:
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
     frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
+    marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
+    coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_centre", 1);
     
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -98,11 +104,20 @@ public:
 
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
-
+	  
       std::cout << "The id of the detected marker detected is: ";
       for (std::size_t i = 0; i < markers_.size(); ++i)
       {
         std::cout << markers_.at(i).id << " ";
+        
+            std_msgs::Int32 id_msg;
+            geometry_msgs::Point coord_msg;
+			id_msg.data = markers_.at(0).id;  // Assegna l'ID del marker a id_msg.data
+			coord_msg.x = markers_.at(0).getCenter().x;
+			coord_msg.y = markers_.at(0).getCenter().y;
+			coord_msg.z=0.0;
+			marker_id_pub_.publish(id_msg);
+			coordinates_center_pub_.publish(coord_msg);
       }
       std::cout << std::endl;
 
