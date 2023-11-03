@@ -34,6 +34,7 @@
  */
 
 #include <iostream>
+#include <vector>
 #include <aruco/aruco.h>
 #include <aruco/cvdrawingutils.h>
 
@@ -66,8 +67,10 @@ private:
   image_transport::Publisher debug_pub_;
 
   ros::Publisher frame_size_ack_pub_;
+  ros::Publisher reached_ack_pub_;
   ros::Publisher marker_id_pub_;
   ros::Publisher coordinates_center_pub_;
+  std::vector<int> lista ;
 
   cv::Mat inImage_;
 
@@ -79,9 +82,10 @@ public:
     debug_pub_ = it_.advertise("debug", 1);
 
     frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
+    reached_ack_pub_ = nh_.advertise<std_msgs::Bool>("/reached_ack", 1);
     marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
     coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_center", 1);
-
+	lista = {11, 12, 13,15};
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
   }
@@ -108,6 +112,9 @@ public:
       // Send center coordinates of the nearest marker
       if (markers_.size() > 0)
       {
+		std_msgs::Bool ack_msg;
+        ack_msg.data = true;
+        frame_size_ack_pub_.publish(ack_msg);
         std::cout << "Id detected markers: ";
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
@@ -115,12 +122,23 @@ public:
           
           std_msgs::Int32 id_msg;
           geometry_msgs::Point coord_msg;
-          id_msg.data = markers_.at(0).id;
-          coord_msg.x = markers_.at(0).getCenter().x;
-          coord_msg.y = markers_.at(0).getCenter().y;
+          id_msg.data = markers_.at(i).id;
+          coord_msg.x = markers_.at(i).getCenter().x;
+          coord_msg.y = markers_.at(i).getCenter().y;
           coord_msg.z = 0.0;
           marker_id_pub_.publish(id_msg);
           coordinates_center_pub_.publish(coord_msg);
+          if (markers_.at(i).getPerimeter() / 4 > 110 && markers_.at(i).id==lista[0])
+        
+			{
+				if (!lista.empty()) {
+				lista.erase(lista.begin());
+				}
+				std_msgs::Bool ack_msg;
+				ack_msg.data = true;
+				reached_ack_pub_.publish(ack_msg);
+			  
+			}
         }
         std::cout << std::endl;
       }
@@ -153,16 +171,7 @@ public:
         debug_pub_.publish(debug_msg.toImageMsg());
       }
 
-      // If a marker is detected and has vertex > 110px, publish an ack msg
-      if (markers_.size() > 0)
-      {
-        if (markers_.at(0).getPerimeter() / 4 > 110)
-        {
-          std_msgs::Bool ack_msg;
-          ack_msg.data = true;
-          frame_size_ack_pub_.publish(ack_msg);
-        }
-      }
+      
     }
     catch (cv_bridge::Exception& e)
     {
