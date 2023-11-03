@@ -42,7 +42,7 @@ Write this in the terminal:
 export ROS_MASTER_URI=https://192.168.1.11x:11311
 ```
 
-> Remember to compress the images that you want to transmit!
+>Remember to compress the images that you want to transmit!
 
 ## How to run
 
@@ -50,9 +50,19 @@ export ROS_MASTER_URI=https://192.168.1.11x:11311
 roslaunch rosbot_gazebo rosbot_world.launch
 rosrun rosbot_navigation robot_camera_control.py
 rosrun rosbot_navigation movement_controller.py
-rosrun aruco_ros marker_publisher 		questa parte non serve più è gia implementata all'interno del file c++ -->  /image:=/camera/color/image_raw
-rostopic pub /exp_rob/camera_position_controller/command std_msgs/Float64 "data: 0.73" 
+rosrun aruco_ros marker_publisher
+```
+
+Open camera view:
+
+```bash
 rosrun image_view image_view image:=/camera/color/image_raw
+```
+
+Publish velocity commands:
+
+```bash
+rostopic pub /exp_rob/camera_position_controller/command std_msgs/Float64 "data: 0.73"
 ```
 
 ## Troubleshoot

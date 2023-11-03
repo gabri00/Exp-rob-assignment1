@@ -64,23 +64,24 @@ private:
 
   image_transport::Publisher image_pub_;
   image_transport::Publisher debug_pub_;
-  
+
   ros::Publisher frame_size_ack_pub_;
   ros::Publisher marker_id_pub_;
   ros::Publisher coordinates_center_pub_;
 
   cv::Mat inImage_;
-  
+
 public:
   ArucoMarkerPublisher() : nh_("~"), it_(nh_), useCamInfo_(true)
   {
     image_sub_ = it_.subscribe("/camera/color/image_raw", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
+
     frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
     marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
     coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_center", 1);
-    
+
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
   }
@@ -97,34 +98,39 @@ public:
     {
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
       inImage_ = cv_ptr->image;
-   
+
       // clear out previous detection results
       markers_.clear();
 
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
-	  
-      std::cout << "The id of the detected marker detected is: ";
-      for (std::size_t i = 0; i < markers_.size(); ++i)
+
+      // Send center coordinates of the nearest marker
+      if (markers_.size() > 0)
       {
-        std::cout << markers_.at(i).id << " ";
-        
-        std_msgs::Int32 id_msg;
-        geometry_msgs::Point coord_msg;
-        id_msg.data = markers_.at(0).id;  // Assegna l'ID del marker a id_msg.data
-        coord_msg.x = markers_.at(0).getCenter().x;
-        coord_msg.y = markers_.at(0).getCenter().y;
-        coord_msg.z = 0.0;
-        marker_id_pub_.publish(id_msg);
-        coordinates_center_pub_.publish(coord_msg);
+        std::cout << "Id detected markers: ";
+        for (std::size_t i = 0; i < markers_.size(); ++i)
+        {
+          std::cout << markers_.at(i).id << " ";
+          
+          std_msgs::Int32 id_msg;
+          geometry_msgs::Point coord_msg;
+          id_msg.data = markers_.at(0).id;
+          coord_msg.x = markers_.at(0).getCenter().x;
+          coord_msg.y = markers_.at(0).getCenter().y;
+          coord_msg.z = 0.0;
+          marker_id_pub_.publish(id_msg);
+          coordinates_center_pub_.publish(coord_msg);
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
 
       // draw detected markers on the image for visualization
       for (std::size_t i = 0; i < markers_.size(); ++i)
       {
         markers_[i].draw(inImage_, cv::Scalar(0, 0, 255), 2);
       }
+
       // publish input image with markers drawn on it
       if (publishImage)
       {
@@ -147,16 +153,16 @@ public:
         debug_pub_.publish(debug_msg.toImageMsg());
       }
 
-      std::cout << "The perimeter is: " << markers_[0].getPerimeter() << std::endl;
-      std::cout << "The side is: " << markers_[0].getPerimeter() / 4 << std::endl;
-      // Check if the first marker has a size of 400 and publish a boolean message
-        if (markers_[0].getPerimeter() / 4 > 110) {
-            std_msgs::Bool ack_msg;
-            ack_msg.data = true;
-            frame_size_ack_pub_.publish(ack_msg);
+      // If a marker is detected and has vertex > 110px, publish an ack msg
+      if (markers_.size() > 0)
+      {
+        if (markers_.at(0).getPerimeter() / 4 > 110)
+        {
+          std_msgs::Bool ack_msg;
+          ack_msg.data = true;
+          frame_size_ack_pub_.publish(ack_msg);
         }
-
-
+      }
     }
     catch (cv_bridge::Exception& e)
     {
