@@ -37,16 +37,21 @@ def id_callback(msg):
     
     
         vel_pub.publish(vel_camera)
+        ack_detection = Bool()
+        ack_detection = True
+        detected_ack.publish(ack_detection)
 
 def main():
-    rospy.init_node('control_node')
+    rospy.init_node('camera_control_node')
     
     # Crea un publisher per la topic cmd_vel.
-    global vel_pub
+    global vel_pub, detected_ack
     global my_list
     my_list = [11, 12, 13, 15]
 
     vel_pub = rospy.Publisher('/exp_rob/camera_position_controller/command', Float64, queue_size=10)
+    
+    detected_ack = rospy.Publisher('/detected_maker', Bool, queue_size=10)
     
     # Crea un subscriber per la topic /ack.
     rospy.Subscriber('/frame_size_ack', Bool, ack_callback)

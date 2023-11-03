@@ -70,33 +70,32 @@ class image_feature:
 
     def control_robot(self, image_np):
         if self.marker_center is not None and self.robot_position is not None:
-            # Calculate error between marker center and image center
-            image_center_x = image_np.shape[0] // 2
-            image_center_y = image_np.shape[1] // 2
+            # Calcola l'errore tra il centro del marker e la posizione del robot
             marker_center_x, marker_center_y = self.marker_center
-            error_x = marker_center_x - image_center_x
-            error_y = marker_center_y - image_center_y
+            robot_x = self.robot_position.x
+            robot_y = self.robot_position.y
+            error_x = marker_center_x - robot_x
+            error_y = marker_center_y - robot_y
 
-            # Implement a control algorithm (e.g., PID) to adjust robot's motion
-            # Calculate angular and linear velocities based on error and robot's position
+            # Implementa un algoritmo di controllo (ad esempio, PID) per regolare il movimento del robot
             k_p_linear = 0.01
             k_p_angular = 0.002
             vel = Twist()
             vel.angular.z = k_p_angular * error_x
             vel.linear.x = k_p_linear * error_y
 
-            # You can use the robot's position (self.robot_position) in your control algorithm
-            # For example, adjust the linear velocity based on the robot's position
+            # Puoi utilizzare la posizione del robot (self.robot_position) nel tuo algoritmo di controllo
+            # Ad esempio, regola la velocità lineare in base alla distanza tra il marker e il robot
             # vel.linear.x *= some_scaling_factor_based_on_distance
             self.vel_pub.publish(vel)
         else:
-            # No marker center information available, stop the robot or perform some default action
+            # Nessuna informazione sul centro del marker disponibile, arresta il robot o esegui un'azione predefinita
             # vel = Twist()
             # vel.linear.x = 0.5
             # self.vel_pub.publish(vel)
             pass
 
-        # Display the image with the ArUco marker and control information
+        # Mostra l'immagine con il marker ArUco e le informazioni di controllo
         cv2.imshow('window', image_np)
         cv2.waitKey(2)
 
