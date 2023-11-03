@@ -72,8 +72,7 @@ private:
   cv::Mat inImage_;
   
 public:
-  ArucoMarkerPublisher() :
-      nh_("~"), it_(nh_), useCamInfo_(true)
+  ArucoMarkerPublisher() : nh_("~"), it_(nh_), useCamInfo_(true)
   {
     image_sub_ = it_.subscribe("/camera/color/image_raw", 1, &ArucoMarkerPublisher::image_callback, this);
     image_pub_ = it_.advertise("result", 1);
@@ -110,14 +109,14 @@ public:
       {
         std::cout << markers_.at(i).id << " ";
         
-            std_msgs::Int32 id_msg;
-            geometry_msgs::Point coord_msg;
-			id_msg.data = markers_.at(0).id;  // Assegna l'ID del marker a id_msg.data
-			coord_msg.x = markers_.at(0).getCenter().x;
-			coord_msg.y = markers_.at(0).getCenter().y;
-			coord_msg.z = 0.0;
-			marker_id_pub_.publish(id_msg);
-			coordinates_center_pub_.publish(coord_msg);
+        std_msgs::Int32 id_msg;
+        geometry_msgs::Point coord_msg;
+        id_msg.data = markers_.at(0).id;  // Assegna l'ID del marker a id_msg.data
+        coord_msg.x = markers_.at(0).getCenter().x;
+        coord_msg.y = markers_.at(0).getCenter().y;
+        coord_msg.z = 0.0;
+        marker_id_pub_.publish(id_msg);
+        coordinates_center_pub_.publish(coord_msg);
       }
       std::cout << std::endl;
 

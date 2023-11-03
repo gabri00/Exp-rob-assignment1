@@ -1,16 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-	
-	  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="extra_gazebo_args" default=""/>
   <arg name="gui" default="true"/>
   <arg name="recording" default="false"/>
   <arg name="world" default="aruco_assignment" />
-  <!-- Note that 'headless' is currently non-functional.  See gazebo_ros_pkgs issue #491 (-r arg does not disable
-       rendering, but instead enables recording). The arg definition has been left here to prevent breaking downstream
-       launch files, but it does nothing. -->
+
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="physics" default="ode"/>
@@ -49,20 +46,16 @@
   <arg name="model" default="$(find rosbot_description)/urdf/rosbot.xacro" />
 
   <!-- Load the URDF into the ROS Parameter Server -->
-  <param name="robot_description" 
-	 command="$(find xacro)/xacro --inorder $(arg model)" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
 	 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-urdf -model robot1 -param robot_description -z 0.05 -Y 3.14"/> 
-
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model robot1 -param robot_description -z 0.05 -Y 3.14"/> 
 
   <rosparam file="$(find rosbot_description)/config/joint_state_controller.yaml" command="load" ns="/exp_rob" />
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="--namespace=/exp_rob
       joint_state_controller
-      camera_position_controller
-      --shutdown-timeout 3">
+      camera_position_controller">
   </node>
 
   <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">

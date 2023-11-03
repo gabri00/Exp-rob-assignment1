@@ -71,8 +71,8 @@ class image_feature:
     def control_robot(self, image_np):
         if self.marker_center is not None and self.robot_position is not None:
             # Calculate error between marker center and image center
-            image_center_x = image_np.shape[1] // 2
-            image_center_y = image_np.shape[0] // 2
+            image_center_x = image_np.shape[0] // 2
+            image_center_y = image_np.shape[1] // 2
             marker_center_x, marker_center_y = self.marker_center
             error_x = marker_center_x - image_center_x
             error_y = marker_center_y - image_center_y
@@ -91,9 +91,10 @@ class image_feature:
             self.vel_pub.publish(vel)
         else:
             # No marker center information available, stop the robot or perform some default action
-            vel = Twist()
-            vel.linear.x = 0.5
-            self.vel_pub.publish(vel)
+            # vel = Twist()
+            # vel.linear.x = 0.5
+            # self.vel_pub.publish(vel)
+            pass
 
         # Display the image with the ArUco marker and control information
         cv2.imshow('window', image_np)
