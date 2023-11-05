@@ -10,6 +10,7 @@ from nav_msgs.msg import Odometry
 class RobotController:
     def __init__(self):
         self.pub_cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        
         self.sub_frame_size_ack = rospy.Subscriber('/frame_size_ack', Bool, self.ack_callback)
         self.sub_odom = rospy.Subscriber('/odom', Odometry, self.odom_callback)
         self.sub_coord_centre = rospy.Subscriber('/coord_center', Point, self.centre_coord_callback)
@@ -18,10 +19,10 @@ class RobotController:
         self.ack_received = False
         self.Kl = 4.0
         self.Ka = 4.0
-        self.pos_x=0.0
-        self.pos_y=0.0
-        self.coord_x=0.0
-        self.coord_y=0.0
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.coord_x = 0.0
+        self.coord_y = 0.0
         self.detected_ack = False
         
     def detected_marker_callback(self, msg):
@@ -69,22 +70,19 @@ class RobotController:
             # Publish it
             self.pub_cmd_vel.publish(cmd_vel)
 
-		
-        
         #err_ang = math.atan2((self.coord_y - self.pos_y) ,(self.coord_x - self.pos_x))
         #print(err_ang)
         #if err_ang > self.threshold:
         #    cmd_vel_msg = Twist()
         #    cmd_vel_msg.linear.z = 0.2  # Esempio: imposta la velocità lineare desiderata
         #    self.pub_cmd_vel.publish(cmd_vel_msg)
-            
-            
-			
-		 
 
-if __name__ == '__main__':
-    rospy.init_node('robot_controller', anonymous=True)
+def main():
+    rospy.init_node('robot_controller')
+
     controller = RobotController()
-    
+
     rospy.spin()
 
+if __name__ == '__main__':
+    main()

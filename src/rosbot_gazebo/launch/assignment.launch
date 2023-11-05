@@ -53,13 +53,23 @@
 
   <rosparam file="$(find rosbot_description)/config/joint_state_controller.yaml" command="load" ns="/exp_rob" />
 
+  <!-- Spawn the controllers -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="--namespace=/exp_rob
       joint_state_controller
       camera_position_controller">
   </node>
 
-  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
-    <remap from="joint_states" to="exp_rob/joint_states"/>
-  </node> -->
+  <!-- Start the aruco marker publisher -->
+  <node name="marker_publisher" pkg="aruco_ros" type="marker_publisher" output="screen" />
+  
+  <!-- Start the image view node to show camera view -->
+  <node name="image_view" pkg="image_view" type="image_view" output="screen">
+    <remap from="image" to="/marker_publisher/result"/>
+  </node>
 
+  <!-- Start the robot camera control node -->
+  <node name="camera_controller" pkg="rosbot_navigation" type="camera_controller.py" output="screen" />
+
+  <!-- Start the robot movement control node -->
+  <node name="robot_controller" pkg="rosbot_navigation" type="robot_controller.py" output="screen" />
 </launch>

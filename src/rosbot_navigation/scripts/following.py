@@ -46,16 +46,20 @@ class image_feature:
         self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed",CompressedImage, self.callback,  queue_size=1)
         self.ack_detected_sub=rospy.Subscriber("/frame_size_ack",Bool,self.ack_callback,queue_size=1)
         self.ack_reached_sub=rospy.Subscriber("/reached_ack",Bool,self.reached_callback,queue_size=1)
+    
     def id_callback(self, msg):
         self.id = msg.data
         
     def centre_coord_callback(self, msg):
         self.coord_x = msg.x
         self.coord_y = msg.y
+    
     def ack_callback(self,msg):
         self.ack=msg.data
+    
     def reached_callback(self,msg):
         self.reached=msg.data
+    
     def callback(self, ros_data):
         '''Callback function of subscribed topic. 
         Here images get converted and features detected'''
@@ -119,16 +123,15 @@ class image_feature:
 
         # self.subscriber.unregister()
 
-
 def main(args):
-    '''Initializes and cleanup ros node'''
     ic = image_feature()
+
     try:
         rospy.spin()
     except KeyboardInterrupt:
         print ("Shutting down ROS Image feature detector module")
-    cv2.destroyAllWindows()
 
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main(sys.argv)
