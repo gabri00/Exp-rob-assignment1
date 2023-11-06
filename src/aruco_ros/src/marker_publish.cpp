@@ -57,7 +57,6 @@ private:
   // node params
   double marker_size_;
   bool useCamInfo_;
-  std::vector<int> allowed_markers;
 
   // ROS pub-sub
   ros::NodeHandle nh_;
@@ -71,6 +70,7 @@ private:
   ros::Publisher reached_ack_pub_;
   ros::Publisher marker_id_pub_;
   ros::Publisher coordinates_center_pub_;
+  std::vector<int> lista ;
 
   cv::Mat inImage_;
 
@@ -85,10 +85,9 @@ public:
     reached_ack_pub_ = nh_.advertise<std_msgs::Bool>("/reached_ack", 1);
     marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
     coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_center", 1);
+	lista = {11, 12, 13,15};
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
-
-    allowed_markers = {11, 12, 13, 15};
   }
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
@@ -113,38 +112,35 @@ public:
       // Send center coordinates of the nearest marker
       if (markers_.size() > 0)
       {
-        // std::cout << "Id detected markers: ";
-
-		    // std_msgs::Bool ack_msg;
-        // ack_msg.data = true;
-        // frame_size_ack_pub_.publish(ack_msg);
-
+		std_msgs::Bool ack_msg;
+        ack_msg.data = true;
+        frame_size_ack_pub_.publish(ack_msg);
+        std::cout << "Id detected markers: ";
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
-          // std::cout << markers_.at(i).id << " ";
+          std::cout << markers_.at(i).id << " ";
           
           std_msgs::Int32 id_msg;
-          id_msg.data = markers_.at(i).id;
-          marker_id_pub_.publish(id_msg);
-
           geometry_msgs::Point coord_msg;
+          id_msg.data = markers_.at(i).id;
           coord_msg.x = markers_.at(i).getCenter().x;
           coord_msg.y = markers_.at(i).getCenter().y;
           coord_msg.z = 0.0;
+          marker_id_pub_.publish(id_msg);
           coordinates_center_pub_.publish(coord_msg);
-
-          if (markers_.at(i).getPerimeter() / 4 > 110 && markers_.at(i).id == allowed_markers[0])
-          {
-            if (!allowed_markers.empty())
-              allowed_markers.erase(allowed_markers.begin());
-
-            std_msgs::Bool ack_msg;
-            ack_msg.data = true;
-            reached_ack_pub_.publish(ack_msg);
-          }
+          if (markers_.at(i).getPerimeter() / 4 > 110 && markers_.at(i).id==lista[0])
+        
+			{
+				if (!lista.empty()) {
+				lista.erase(lista.begin());
+				}
+				std_msgs::Bool ack_msg;
+				ack_msg.data = true;
+				reached_ack_pub_.publish(ack_msg);
+			  
+			}
         }
-
-        // std::cout << std::endl;
+        std::cout << std::endl;
       }
 
       // draw detected markers on the image for visualization

@@ -48,9 +48,9 @@ export ROS_MASTER_URI=https://192.168.1.11x:11311
 
 ```bash
 roslaunch rosbot_gazebo rosbot_world.launch
-rosrun aruco_ros marker_publisher
 rosrun rosbot_navigation robot_camera_control.py
-rosrun rosbot_navigation movement_controller.py # Not working yet
+rosrun rosbot_navigation movement_controller.py
+rosrun aruco_ros marker_publisher
 ```
 
 Open camera view:

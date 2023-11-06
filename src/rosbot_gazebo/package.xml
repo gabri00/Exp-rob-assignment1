@@ -2,13 +2,24 @@
 <package format="2">
   <name>rosbot_gazebo</name>
   <version>0.0.0</version>
-  <description>The rosbot_gazebo package</description>
+  <description>Assignment 1 - Experimental</description>
 
   <maintainer email="support@husarion.com">Husarion</maintainer>
 
   <license>Apache License 2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  
+  <build_export_depend>cv_bridge</build_export_depend>
+  <build_export_depend>image_transport</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+
   <depend>controller_manager</depend>
   <depend>joint_state_controller</depend>
   <depend>joint_state_publisher</depend>
@@ -16,4 +27,5 @@
   <depend>gazebo_ros_control</depend>
   <depend>robot_state_publisher</depend>
   <depend>xacro</depend>
+
 </package>
