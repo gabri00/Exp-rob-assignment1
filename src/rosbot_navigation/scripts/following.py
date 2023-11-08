@@ -21,6 +21,8 @@ import rospy
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist , Point
 from std_msgs.msg import Bool,Float64,Int32
+from nav_msgs.msg import Odometry 
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 VERBOSE = False
 
@@ -41,11 +43,23 @@ class image_feature:
         # topic where we publish
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",CompressedImage, queue_size=1)
         self.vel_pub = rospy.Publisher("cmd_vel",Twist, queue_size=1)
+        self.odom = rospy.Subscriber('/odom', Odometry, self.odometry_callback)
 
         # subscribed Topic
         self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed",CompressedImage, self.callback,  queue_size=1)
         self.ack_detected_sub=rospy.Subscriber("/frame_size_ack",Bool,self.ack_callback,queue_size=1)
         self.ack_reached_sub=rospy.Subscriber("/reached_ack",Bool,self.reached_callback,queue_size=1)
+        
+        roll = pitch = yaw = 0.0
+        
+        
+    def odometry_callback(self, msg):
+        global roll, pitch, yaw
+        orientation_q = msg.pose.pose.orientation
+        orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+        (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+        print(yaw)
+        
     def id_callback(self, msg):
         self.id = msg.data
         
@@ -72,11 +86,10 @@ class image_feature:
         blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, blackLower, blackUpper)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        #mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=8)
         #cv2.imshow('mask', mask)
-        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
         center = None
         # only proceed if at least one contour was found
@@ -89,6 +102,7 @@ class image_feature:
             ((x, y), radius) = cv2.minEnclosingCircle(c)
             
             center = (int (self.coord_x), int (self.coord_y))
+            print(center)
             
             
             if self.reached:
@@ -100,12 +114,16 @@ class image_feature:
                 self.my_list.pop(0)
                 self.reached=False
                 
-            else:
+            elif radius > 80:
                 cv2.circle(image_np, (int(x), int(y)), int(radius),(0, 255, 255), 2)
                 cv2.circle(image_np, center, 5, (0, 0, 255), -1)
                 vel = Twist()
-                vel.linear.x = -0.001*(radius-200)
-                vel.angular.z = 0.002*(center[0]-100)
+                vel.angular.z = 0.002*(center[0]-400)
+                vel.linear.x = -0.01*(radius-100)
+                self.vel_pub.publish(vel)
+            else:
+                vel = Twist()
+                vel.linear.x = 0.5
                 self.vel_pub.publish(vel)
 
         else:
