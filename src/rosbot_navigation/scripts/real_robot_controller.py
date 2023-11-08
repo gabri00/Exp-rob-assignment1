@@ -24,17 +24,12 @@ from std_msgs.msg import Bool,Float64,Int32
 from nav_msgs.msg import Odometry 
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
-VERBOSE = False
-
-class image_feature:
-
+class real_robot_controller:
     def __init__(self):
-        
-        '''Initialize ros publisher, ros subscriber'''
-        rospy.init_node('image_feature', anonymous=True)
+        rospy.init_node('real_robot_controller', anonymous=True)
     	
-        self.detected_ack= False
-        self.reached_ack=False
+        self.detected_ack = False
+        self.reached_ack = False
         self.camera_center_x = 0.0
         self.camera_center_y = 0.0
         self.coord_x = 0.0
@@ -44,8 +39,7 @@ class image_feature:
         
         # topic where we publish
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",CompressedImage, queue_size=1)
-        self.vel_pub = rospy.Publisher("cmd_vel",Twist, queue_size=1)
-        # self.camera_pub = rospy.Publisher('/exp_rob/camera_position_controller/command', Float64, queue_size=10)
+        self.vel_pub = rospy.Publisher("/cmd_vel",Twist, queue_size=1)
 
         # subscribed Topic
         self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed", CompressedImage, self.callback, queue_size=1)
@@ -66,34 +60,13 @@ class image_feature:
         self.coord_x = msg.x
         self.coord_y = msg.y
         
-    def detected_callback(self,msg):
+    def detected_callback(self, msg):
         self.detected_ack = msg.data
         
-    def reached_callback(self,msg):
+    def reached_callback(self, msg):
         self.reached_ack = msg.data
         
-    def callback(self, ros_data):
-        '''Callback function of subscribed topic. 
-        Here images get converted and features detected'''
-        if VERBOSE:
-            print ('received image of type: "%s"' % ros_data.format)
-
-        #### direct conversion to CV2 ####
-        np_arr = np.fromstring(ros_data.data, np.uint8)
-        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # OpenCV >= 3.0:
-
-        #blackLower = (0, 0, 0)
-        #blackUpper = (0, 0, 0)
-
-        #blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
-        #hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-        #mask = cv2.inRange(hsv, blackLower, blackUpper)
-        #mask = cv2.erode(mask, None, iterations=2)
-        #mask = cv2.dilate(mask, None, iterations=8)
-        #cv2.imshow('mask', mask)
-        #cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        #cnts = imutils.grab_contours(cnts)
-        #center = None
+    def callback(self):
         
         marker_center = (int (self.coord_x), int (self.coord_y))
         print("Marker center: ", marker_center)
@@ -103,47 +76,34 @@ class image_feature:
         
         # only proceed if at least one contour was found
         if self.detected_ack and self.id == self.my_list[0]:
-            
-            #c = max(cnts, key=cv2.contourArea)
-            #((x, y), radius) = cv2.minEnclosingCircle(c)
-            
-            
-                if self.reached_ack:
-                    vel = Twist()
-                    vel.linear.x = 0.0
-                    vel.angular.z = 0.0
-                    self.vel_pub.publish(vel)
-                    self.my_list.pop(0)  
-                    self.reached_ack = False 
-                    
-                elif (self.coord_x < ((self.camera_center_x) + 15)) and (self.coord_x > ((self.camera_center_x) - 15)):
-                    #cv2.circle(image_np, (int(x), int(y)), int(radius),(0, 255, 255), 2)
-                    #cv2.circle(image_np, center, 5, (0, 0, 255), -1)
-                    vel = Twist()
-                    vel.angular.z = 0.0
-                    vel.linear.x = 0.5
-                    self.vel_pub.publish(vel)
+            if self.reached_ack:
+                vel = Twist()
+                vel.linear.x = 0.0
+                vel.angular.z = 0.0
+                self.vel_pub.publish(vel)
+                self.my_list.pop(0)  
+                self.reached_ack = False 
+                
+            elif (self.coord_x < ((self.camera_center_x) + 15)) and (self.coord_x > ((self.camera_center_x) - 15)):
+                vel = Twist()
+                vel.angular.z = 0.0
+                vel.linear.x = 0.5
+                self.vel_pub.publish(vel)
+            else:
+                vel = Twist()
+                vel.linear.x = 0.0
+                vel.angular.z = 0.5
+                self.vel_pub.publish(vel)
         else:
             vel = Twist()
             vel.linear.x = 0.0
             vel.angular.z = 0.5
             self.vel_pub.publish(vel)
 
-        cv2.imshow('window', image_np)
-        cv2.waitKey(2)
+def main():
+    real_robot_controller()
 
-        # self.subscriber.unregister()
-
-
-def main(args):
-    '''Initializes and cleanup ros node'''
-    ic = image_feature()
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print ("Shutting down ROS Image feature detector module")
-    cv2.destroyAllWindows()
-
+    rospy.spin()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
