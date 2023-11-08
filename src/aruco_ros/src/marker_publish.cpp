@@ -66,10 +66,10 @@ private:
   image_transport::Publisher image_pub_;
   image_transport::Publisher debug_pub_;
 
-  ros::Publisher frame_size_ack_pub_;
+  ros::Publisher detected_ack_pub_;
   ros::Publisher reached_ack_pub_;
   ros::Publisher marker_id_pub_;
-  ros::Publisher coordinates_center_pub_;
+  ros::Publisher marker_center_pub_;
   std::vector<int> lista ;
 
   cv::Mat inImage_;
@@ -81,10 +81,10 @@ public:
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
 
-    frame_size_ack_pub_ = nh_.advertise<std_msgs::Bool>("/frame_size_ack", 1);
-    reached_ack_pub_ = nh_.advertise<std_msgs::Bool>("/reached_ack", 1);
-    marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker_id", 1);
-    coordinates_center_pub_= nh_.advertise<geometry_msgs::Point>("/coord_center", 1);
+    detected_ack_pub_ = nh_.advertise<std_msgs::Bool>("/ack/detected", 1);
+    reached_ack_pub_ = nh_.advertise<std_msgs::Bool>("/ack/reached", 1);
+    marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker/id", 1);
+    marker_center_pub_= nh_.advertise<geometry_msgs::Point>("/marker/center", 1);
 	lista = {11, 12, 13,15};
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
@@ -109,38 +109,41 @@ public:
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
 
-      // Send center coordinates of the nearest marker
+      // If a marker is detected, publish the marker ID and center
       if (markers_.size() > 0)
       {
-		std_msgs::Bool ack_msg;
+		    std_msgs::Bool ack_msg;
         ack_msg.data = true;
-        frame_size_ack_pub_.publish(ack_msg);
-        std::cout << "Id detected markers: ";
+        detected_ack_pub_.publish(ack_msg);
+        
+        // std::cout << "Id detected markers: ";
+
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
-          std::cout << markers_.at(i).id << " ";
+          // std::cout << markers_.at(i).id << " ";
           
           std_msgs::Int32 id_msg;
-          geometry_msgs::Point coord_msg;
           id_msg.data = markers_.at(i).id;
-          coord_msg.x = markers_.at(i).getCenter().x;
-          coord_msg.y = markers_.at(i).getCenter().y;
-          coord_msg.z = 0.0;
           marker_id_pub_.publish(id_msg);
-          coordinates_center_pub_.publish(coord_msg);
-          if (markers_.at(i).getPerimeter() / 4 > 170 && markers_.at(i).id==lista[0])
-        
-			{
-				if (!lista.empty()) {
-				lista.erase(lista.begin());
-				}
-				std_msgs::Bool ack_msg;
-				ack_msg.data = true;
-				reached_ack_pub_.publish(ack_msg);
-			  
-			}
+
+          geometry_msgs::Point center_msg;
+          center_msg.x = markers_.at(i).getCenter().x;
+          center_msg.y = markers_.at(i).getCenter().y;
+          center_msg.z = 0.0;
+          marker_center_pub_.publish(center_msg);
+
+          // If the marker's perimeter is greater than 170, publish an ack
+          if (markers_.at(i).getPerimeter() / 4 > 170 && markers_.at(i).id == lista[0])
+          {
+            if (!lista.empty()) lista.erase(lista.begin());
+            
+            std_msgs::Bool ack_msg;
+            ack_msg.data = true;
+            reached_ack_pub_.publish(ack_msg);
+          }
         }
-        std::cout << std::endl;
+
+        // std::cout << std::endl;
       }
 
       // draw detected markers on the image for visualization
