@@ -43,7 +43,7 @@ class image_feature:
         # topic where we publish
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",CompressedImage, queue_size=1)
         self.vel_pub = rospy.Publisher("/cmd_vel",Twist, queue_size=1)
-
+        self.camera_pub.= rospy.Publisher("/exp_rob/camera_position_controller/command",Float64, queue_size=1)
         # subscribed Topic
         self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed", CompressedImage, self.callback, queue_size=1)
         self.subscriber = rospy.Subscriber("/camera/color/camera_info", CameraInfo, self.camera_center_callback, queue_size=1)
@@ -51,6 +51,7 @@ class image_feature:
         self.ack_reached_sub=rospy.Subscriber("/reached_ack", Bool, self.reached_callback, queue_size=1)
         self.id_sub=rospy.Subscriber('/marker_id', Int32, self.id_callback)
         self.sub_coord_centre = rospy.Subscriber('/coord_center', Point, self.centre_coord_callback)
+        
         
     def camera_center_callback(self, msg):
         self.camera_center_x = (msg.width)/2
@@ -79,8 +80,8 @@ class image_feature:
             print ('received image of type: "%s"' % ros_data.format)
 
         #### direct conversion to CV2 ####
-        np_arr = np.fromstring(ros_data.data, np.uint8)
-        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # OpenCV >= 3.0:
+        #np_arr = np.fromstring(ros_data.data, np.uint8)
+        #image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # OpenCV >= 3.0:
 
         
         marker_center = (int (self.coord_x), int (self.coord_y))
@@ -103,18 +104,16 @@ class image_feature:
                     self.reached_ack = False 
                 
                 elif (self.camera_center_x < ((self.coord_x ) + 15)) and (self.camera_center_x > (( self.coord_x ) - 15)):
-                    vel = Twist()
-                    vel.angular.z = 0.0
-                    vel.linear.x = 0.5
-                    self.vel_pub.publish(vel)
+                    vel_camera=Float64()
+                    vel_camera = 0.0 
+                    self.camera_pub.publish(vel_camera)
                 else:
-                    vel = Twist()
-                    vel.linear.x = 0.1
+                    vel_camera = Float64()
                     if self.camera_center_x > self.coord_x:
-                        vel.angular.z = 0.2
+                        vel_camera = 0.2
                     else:
-                        vel.angular.z = -0.2
-                    self.vel_pub.publish(vel)
+                        vel_camera = -0.2
+                    self.camera_pub.publish(vel_camera)
             else:
                self.ack=False
                vel_camera=Float64()
