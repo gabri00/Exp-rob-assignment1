@@ -128,7 +128,7 @@ public:
           coord_msg.z = 0.0;
           marker_id_pub_.publish(id_msg);
           coordinates_center_pub_.publish(coord_msg);
-          if (markers_.at(i).getPerimeter() / 4 > 110 && markers_.at(i).id==lista[0])
+          if (markers_.at(i).getPerimeter() / 4 > 170 && markers_.at(i).id==lista[0])
         
 			{
 				if (!lista.empty()) {

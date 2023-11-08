@@ -66,39 +66,47 @@ class real_robot_controller:
     def reached_callback(self, msg):
         self.reached_ack = msg.data
         
-    def callback(self):
+    def callback(self,msg):
         
         marker_center = (int (self.coord_x), int (self.coord_y))
-        print("Marker center: ", marker_center)
+        #print("Marker center: ", marker_center)
         
         camera_center = (int (self.camera_center_x), int (self.camera_center_y))
-        print("Camera center: ", camera_center)
+        #print("Camera center: ", camera_center)
         
         # only proceed if at least one contour was found
-        if self.detected_ack and self.id == self.my_list[0]:
-            if self.reached_ack:
-                vel = Twist()
-                vel.linear.x = 0.0
-                vel.angular.z = 0.0
-                self.vel_pub.publish(vel)
-                self.my_list.pop(0)  
-                self.reached_ack = False 
+        if self.my_list :
+            if self.detected_ack and self.id == self.my_list[0]:
+                if self.reached_ack and self.id == self.my_list[0]:
+                    vel = Twist()
+                    vel.linear.x = 0.0
+                    vel.angular.z = 0.0
+                    self.vel_pub.publish(vel)
+                    self.my_list.pop(0) 
+                    print("reached: ",self.id)
+                    #print(self.my_list) 
+                    self.reached_ack = False 
                 
-            elif (self.coord_x < ((self.camera_center_x) + 15)) and (self.coord_x > ((self.camera_center_x) - 15)):
-                vel = Twist()
-                vel.angular.z = 0.0
-                vel.linear.x = 0.5
-                self.vel_pub.publish(vel)
+                elif (self.camera_center_x < ((self.coord_x ) + 10)) and (self.camera_center_x > (( self.coord_x ) - 10)):
+                    vel = Twist()
+                    vel.angular.z = 0.0
+                    vel.linear.x = 0.5
+                    self.vel_pub.publish(vel)
+                else:
+                    vel = Twist()
+                    vel.linear.x = 0.1
+                    if self.camera_center_x > self.coord_x:
+                        vel.angular.z = 0.1
+                    else:
+                        vel.angular.z = -0.1
+                    self.vel_pub.publish(vel)
             else:
                 vel = Twist()
                 vel.linear.x = 0.0
                 vel.angular.z = 0.5
                 self.vel_pub.publish(vel)
         else:
-            vel = Twist()
-            vel.linear.x = 0.0
-            vel.angular.z = 0.5
-            self.vel_pub.publish(vel)
+            exit(0)
 
 def main():
     real_robot_controller()

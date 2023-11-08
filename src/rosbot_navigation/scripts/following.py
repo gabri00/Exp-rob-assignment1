@@ -29,30 +29,32 @@ VERBOSE = False
 class image_feature:
 
     def __init__(self):
-        self.ack= False
-        self.reached=False
+        rospy.init_node('sim_robot_controller', anonymous=True)
+    	
+        self.detected_ack = False
+        self.reached_ack = False
+        self.camera_center_x = 0.0
+        self.camera_center_y = 0.0
         self.coord_x = 0.0
         self.coord_y = 0.0
         self.my_list = [11, 12, 13, 15]
-        self.id =0
-        self.id_sub=rospy.Subscriber('/marker_id', Int32, self.id_callback)
-        self.sub_coord_centre = rospy.Subscriber('/coord_center', Point, self.centre_coord_callback)
-        self.camera_pub = rospy.Publisher('/exp_rob/camera_position_controller/command', Float64, queue_size=10)
-        '''Initialize ros publisher, ros subscriber'''
-        rospy.init_node('image_feature', anonymous=True)
+        self.id = 0
+        
         # topic where we publish
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",CompressedImage, queue_size=1)
-        self.vel_pub = rospy.Publisher("cmd_vel",Twist, queue_size=1)
-        self.odom = rospy.Subscriber('/odom', Odometry, self.odometry_callback)
+        self.vel_pub = rospy.Publisher("/cmd_vel",Twist, queue_size=1)
 
         # subscribed Topic
-        self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed",CompressedImage, self.callback,  queue_size=1)
-        self.ack_detected_sub=rospy.Subscriber("/frame_size_ack",Bool,self.ack_callback,queue_size=1)
-        self.ack_reached_sub=rospy.Subscriber("/reached_ack",Bool,self.reached_callback,queue_size=1)
+        self.subscriber = rospy.Subscriber("/camera/color/image_raw/compressed", CompressedImage, self.callback, queue_size=1)
+        self.subscriber = rospy.Subscriber("/camera/color/camera_info", CameraInfo, self.camera_center_callback, queue_size=1)
+        self.ack_detected_sub=rospy.Subscriber("/frame_size_ack", Bool, self.detected_callback, queue_size=1)
+        self.ack_reached_sub=rospy.Subscriber("/reached_ack", Bool, self.reached_callback, queue_size=1)
+        self.id_sub=rospy.Subscriber('/marker_id', Int32, self.id_callback)
+        self.sub_coord_centre = rospy.Subscriber('/coord_center', Point, self.centre_coord_callback)
         
-        roll = pitch = yaw = 0.0
-        
-        
+    def camera_center_callback(self, msg):
+        self.camera_center_x = (msg.width)/2
+        self.camera_center_y = (msg.height)/2   
     def odometry_callback(self, msg):
         global roll, pitch, yaw
         orientation_q = msg.pose.pose.orientation
@@ -80,57 +82,48 @@ class image_feature:
         np_arr = np.fromstring(ros_data.data, np.uint8)
         image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # OpenCV >= 3.0:
 
-        blackLower = (0, 0, 0)
-        blackUpper = (0, 0, 0)
-
-        blurred = cv2.GaussianBlur(image_np, (11, 11), 0)
-        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, blackLower, blackUpper)
-        #mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=8)
-        #cv2.imshow('mask', mask)
-        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = imutils.grab_contours(cnts)
-        center = None
+        
+        marker_center = (int (self.coord_x), int (self.coord_y))
+        #print("Marker center: ", marker_center)
+        
+        camera_center = (int (self.camera_center_x), int (self.camera_center_y))
+        #print("Camera center: ", camera_center)
+        
         # only proceed if at least one contour was found
-        if self.ack and self.id == self.my_list[0]:
-            
-            vel_camera=Float64()
-            vel_camera = 0.0 
-            self.camera_pub.publish(vel_camera)
-            c = max(cnts, key=cv2.contourArea)
-            ((x, y), radius) = cv2.minEnclosingCircle(c)
-            
-            center = (int (self.coord_x), int (self.coord_y))
-            print(center)
-            
-            
-            if self.reached:
+        if self.my_list :
+            if self.detected_ack and self.id == self.my_list[0]:
+                if self.reached_ack and self.id == self.my_list[0]:
+                    vel = Twist()
+                    vel.linear.x = 0.0
+                    vel.angular.z = 0.0
+                    self.vel_pub.publish(vel)
+                    self.my_list.pop(0) 
+                    print("reached: ",self.id)
+                    #print(self.my_list) 
+                    self.reached_ack = False 
                 
-                vel = Twist()
-                vel.linear.x = 0.0
-                vel.angular.z=0.0
-                self.vel_pub.publish(vel)
-                self.my_list.pop(0)
-                self.reached=False
-                
-            elif radius > 80:
-                cv2.circle(image_np, (int(x), int(y)), int(radius),(0, 255, 255), 2)
-                cv2.circle(image_np, center, 5, (0, 0, 255), -1)
-                vel = Twist()
-                vel.angular.z = 0.002*(center[0]-400)
-                vel.linear.x = -0.01*(radius-100)
-                self.vel_pub.publish(vel)
+                elif (self.camera_center_x < ((self.coord_x ) + 15)) and (self.camera_center_x > (( self.coord_x ) - 15)):
+                    vel = Twist()
+                    vel.angular.z = 0.0
+                    vel.linear.x = 0.5
+                    self.vel_pub.publish(vel)
+                else:
+                    vel = Twist()
+                    vel.linear.x = 0.1
+                    if self.camera_center_x > self.coord_x:
+                        vel.angular.z = 0.2
+                    else:
+                        vel.angular.z = -0.2
+                    self.vel_pub.publish(vel)
             else:
-                vel = Twist()
-                vel.linear.x = 0.5
-                self.vel_pub.publish(vel)
-
+               self.ack=False
+               vel_camera=Float64()
+               vel_camera = 0.5  
+               self.camera_pub.publish(vel_camera)
         else:
-            self.ack=False
-            vel_camera=Float64()
-            vel_camera = 0.5  
-            self.camera_pub.publish(vel_camera)
+            exit(0)
+
+        
 
         cv2.imshow('window', image_np)
         cv2.waitKey(2)
