@@ -15,7 +15,7 @@ class real_robot_controller:
         self.camera_center = Point()
         self.marker_center = Point()
         self.markers = [11, 12, 13, 15]
-        self.id = 0
+        self.marker_id = 0
         
         # Publishers
         self.image_pub = rospy.Publisher("/output/image_raw/compressed", CompressedImage, queue_size=1)
@@ -36,7 +36,7 @@ class real_robot_controller:
 
     # Callback to get the ID of the marker
     def marker_id_callback(self, msg : Int32):
-        self.id = msg.data
+        self.marker_id = msg.data
 
     # Callback to get the center of the marker
     def marker_center_callback(self, msg : Point):
@@ -57,17 +57,20 @@ class real_robot_controller:
         # print(f"Marker center: ({self.marker_center.x}, {self.marker_center.y})")
         # print(f"Camera center: ({self.camera_center.x}, {self.camera_center.y})")
         
-        # Proceed only if at least one marker was found
+        # Proceed only if there are markers left
         if self.markers:
             vel = Twist()
 
-            if self.detected_ack and self.id == self.markers[0]:
+            # If the marker is detected and it is the one we are looking for, else rotate
+            if self.detected_ack and self.marker_id == self.markers[0]:
                 if self.reached_ack:
+                    self.reached_ack = False
+                    self.markers.pop(0)
+
                     vel.linear.x = 0.0
                     vel.angular.z = 0.0
-                    self.markers.pop(0)
-                    print("Reached: ", self.id)
-                    self.reached_ack = False                
+
+                    print("Reached: ", self.marker_id)
                 elif (self.camera_center.x < (self.marker_center.x + 10)) and (self.camera_center.x > (self.marker_center.x - 10)):
                     vel.linear.x = 0.5
                     vel.angular.z = 0.0

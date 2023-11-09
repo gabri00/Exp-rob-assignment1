@@ -70,9 +70,10 @@ private:
   ros::Publisher reached_ack_pub_;
   ros::Publisher marker_id_pub_;
   ros::Publisher marker_center_pub_;
-  std::vector<int> lista ;
 
   cv::Mat inImage_;
+
+  std::vector<int> lista;
 
 public:
   ArucoMarkerPublisher() : nh_("~"), it_(nh_), useCamInfo_(true)
@@ -85,9 +86,11 @@ public:
     reached_ack_pub_ = nh_.advertise<std_msgs::Bool>("/ack/reached", 1);
     marker_id_pub_ = nh_.advertise<std_msgs::Int32>("/marker/id", 1);
     marker_center_pub_= nh_.advertise<geometry_msgs::Point>("/marker/center", 1);
-	lista = {11, 12, 13,15};
+  
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
+
+    lista = {11, 12, 13,15};
   }
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
@@ -136,7 +139,7 @@ public:
           if (markers_.at(i).getPerimeter() / 4 > 170 && markers_.at(i).id == lista[0])
           {
             if (!lista.empty()) lista.erase(lista.begin());
-            
+
             std_msgs::Bool ack_msg;
             ack_msg.data = true;
             reached_ack_pub_.publish(ack_msg);
