@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import time
 
 from std_msgs.msg import Bool, Int32
 from geometry_msgs.msg import Twist , Point
@@ -71,18 +72,19 @@ class real_robot_controller:
                     vel.angular.z = 0.0
 
                     print("Reached: ", self.marker_id)
-                elif (self.camera_center.x < (self.marker_center.x + 10)) and (self.camera_center.x > (self.marker_center.x - 10)):
-                    vel.linear.x = 0.5
+                elif (self.camera_center.x < (self.marker_center.x + 12)) and (self.camera_center.x > (self.marker_center.x - 12)):
+                    vel.linear.x = 0.4
                     vel.angular.z = 0.0
+                    
                 else:
-                    vel.linear.x = 0.1
+                    vel.linear.x = 0.05
                     if self.camera_center.x > self.marker_center.x:
                         vel.angular.z = 0.1
                     else:
                         vel.angular.z = -0.1
             else:
                 vel.linear.x = 0.0
-                vel.angular.z = 0.5
+                vel.angular.z = 0.35
 
             self.vel_pub.publish(vel)
         else:
@@ -91,6 +93,7 @@ class real_robot_controller:
 
 
 def main():
+    time.sleep(5)
     real_robot_controller()
     rospy.spin()
 
