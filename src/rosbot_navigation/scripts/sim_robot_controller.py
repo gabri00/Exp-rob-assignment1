@@ -96,7 +96,7 @@ class sim_robot_controller:
                     self.reached_ack = False 
                     print("Reached: ",self.marker_id)
                 
-                elif (self.camera_center.x < ((self.marker_center.x) + 15)) and (self.camera_center.x > (( self.marker_center.x) - 15) and math.fabs(self.err_yaw) <= math.pi / 90):
+                elif (self.camera_center.x < ((self.marker_center.x) + 12)) and (self.camera_center.x > (( self.marker_center.x) - 12) and math.fabs(self.err_yaw) <= math.pi / 90):
                     vel_camera = 0.0 
                     vel_robot.linear.x = 0.3
                     vel_robot.angular.z = self.err_yaw
