@@ -121,26 +121,27 @@ public:
 
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
-          if (markers_.at(i).id == markers[0]){
-		  std_msgs::Int32 id_msg;
-		  id_msg.data = markers_.at(i).id;
-		  marker_id_pub_.publish(id_msg);
-
-		  geometry_msgs::Point center_msg;
-		  center_msg.x = markers_.at(i).getCenter().x;
-		  center_msg.y = markers_.at(i).getCenter().y;
-		  center_msg.z = 0.0;
-		  marker_center_pub_.publish(center_msg);
-          }
-
-          // If the marker's perimeter is greater than 170, publish an ack
-          if (markers_.at(i).getPerimeter() / 4 > 170 && markers_.at(i).id == markers[0])
+          if (markers_.at(i).id == markers[0])
           {
-            if (!markers.empty()) markers.erase(markers.begin());
+            std_msgs::Int32 id_msg;
+            id_msg.data = markers_.at(i).id;
+            marker_id_pub_.publish(id_msg);
 
-            std_msgs::Bool ack_msg;
-            ack_msg.data = true;
-            reached_ack_pub_.publish(ack_msg);
+            geometry_msgs::Point center_msg;
+            center_msg.x = markers_.at(i).getCenter().x;
+            center_msg.y = markers_.at(i).getCenter().y;
+            center_msg.z = 0.0;
+            marker_center_pub_.publish(center_msg);
+
+            // If the marker's perimeter is greater than 170, publish an ack
+            if (markers_.at(i).getPerimeter() / 4 > 170)
+            {
+              if (!markers.empty()) markers.erase(markers.begin());
+
+              std_msgs::Bool ack_msg;
+              ack_msg.data = true;
+              reached_ack_pub_.publish(ack_msg);
+            }
           }
         }
       }
