@@ -68,5 +68,5 @@
   </node>
 
   <!-- Start the robot camera control node -->
-  <node name="real_robot_controller" pkg="rosbot_navigation" type="real_robot_controller.py" output="screen" />
+  <node name="sim_robot_controller" pkg="rosbot_navigation" type="sim_robot_controller.py" output="screen" />
 </launch>

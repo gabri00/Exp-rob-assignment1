@@ -27,8 +27,8 @@ class real_robot_controller:
         rospy.Subscriber("/camera/color/camera_info", CameraInfo, self.camera_center_callback, queue_size=1)
         rospy.Subscriber("/ack/detected", Bool, self.detected_callback, queue_size=1)
         rospy.Subscriber("/ack/reached", Bool, self.reached_callback, queue_size=1)
-        rospy.Subscriber('/marker/id', Int32, self.marker_id_callback)
-        rospy.Subscriber('/marker/center', Point, self.marker_center_callback)
+        rospy.Subscriber('/marker/id', Int32, self.marker_id_callback, queue_size=1)
+        rospy.Subscriber('/marker/center', Point, self.marker_center_callback), queue_size=1
 
     # Callback to get the center of the camera
     def camera_center_callback(self, msg : CameraInfo):
