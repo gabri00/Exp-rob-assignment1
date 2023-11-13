@@ -17,8 +17,6 @@ class real_robot_controller:
         self.marker_center = Point()
         self.markers = [11, 12, 13, 15]
         self.marker_id = 0
-
-        self.wsl = True
         
         # Publishers
         self.image_pub = rospy.Publisher("/output/image_raw/compressed", CompressedImage, queue_size=1)
@@ -56,16 +54,6 @@ class real_robot_controller:
 
     # Control loop, runs every time a new image is published
     def control_loop(self, msg : CompressedImage):
-        if self.wsl:
-            self.wsl = False
-            vel = Twist()
-            vel.linear.x = 0.2
-            self.vel_pub.publish(vel)
-            time.sleep(2)
-            vel = Twist()
-            vel.linear.x = 0.0
-            self.vel_pub.publish(vel)
-
         # Proceed only if there are markers left
         if self.markers:
             vel = Twist()

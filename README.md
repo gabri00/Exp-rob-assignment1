@@ -1,118 +1,108 @@
 # Assignment 1
 
-## Instructions
+>Note: developed in ROS Noetic
+
+## Group members
+
+| Name Surname          | ID       |
+| --------------------- | -------- |
+| Gabriele Nicchiarelli | S4822677 |
+| Ivan Terrile          | S4851947 |
+| Miriam Anna Ruggero   | S4881702 |
+| Davide Pisano         | S4363394 |
+
+## Preliminary operations
 
 Install dependencies:
 
 ```bash
-cd ~/noetic_ws
+cd ~/<your_workspace>
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
 Build the workspace:
 
 ```bash
-cd ~/noetic_ws
+cd ~/<your_workspace>
 catkin_make
 ```
 
-#### Connect to the local network
+## Run the Gazebo simulation
+
+Run the simulation (with rotating camera):
+
+```bash
+roslaunch rosbot_gazebo assignment_gazebo.launch
+```
+
+Run the simulation (with fixed camera):
+
+```bash
+roslaunch rosbot_gazebo assignment_rosbot.launch
+```
+
+## Run on the Rosbot
+
+#### Step 1: Connect to the local network
 
 | Network name | Network password |
 | ------------ | ---------------- |
 | TP_LINK      | 03694008         |
 
-#### Run the program from the robot (ROS Melodic)
+#### Step 2: add the ROS master URI and user's IP address
 
-Connect to the robot via SSH:
+Add the following lines at the bottom of the `~/.bashrc` file:
+
+```bash
+export ROS_MASTER_URI=https://192.168.1.10x:11311
+export ROS_IP=<YOUR_IP_ADDRESS>
+```
+
+#### Step 3: Connect to the robot via SSH
 
 ```bash
 ssh husarion@192.168.1.10x
+# x is the identifier number of the robot (written on the bot)
 ```
 
-When asked, input the password: *husarion*
+**Password**: husarion
 
-> *x* is the identifier number of the robot (written on the bot)
+#### Step 4: Start the drivers
 
-#### Run the program from your pc (ROS Noetic)
-
-Write this in the terminal:
+In the Rosbot terminal:
 
 ```bash
-export ROS_MASTER_URI=https://192.168.1.11x:11311
+roslaunch tutorial_pkg all.launch
 ```
 
->Remember to compress the images that you want to transmit!
+#### Step 5: Start the simulation
 
-## How to run
+In the local terminal:
 
 ```bash
-roslaunch rosbot_gazebo rosbot_world.launch
-rosrun rosbot_navigation robot_camera_control.py
-rosrun rosbot_navigation movement_controller.py
-rosrun aruco_ros marker_publisher
+roslaunch rosbot_gazebo real_rosbot.launch
 ```
 
-Open camera view:
+## Description of the packages
 
-```bash
-rosrun image_view image_view image:=/camera/color/image_raw
-```
+Here goes the description of the packages.
 
-Publish velocity commands:
+### Flowchart
 
-```bash
-rostopic pub /exp_rob/camera_position_controller/command std_msgs/Float64 "data: 0.73"
-```
+![Flowchart](./media/flowchart.png)
+
+### Video demo
+
+[![Video demo](./media/video_demo.png)](./media/video_demo.mp4)
+
+## References
+
+- [Husarion ROSbot](https://husarion.com/manuals/rosbot/)
+
+- [ROSbot GitHub repository](https://github.com/husarion/rosbot_ros/tree/noetic)
+
+- [Aruco ROS](https://github.com/CarmineD8/aruco_ros)
 
 ## Troubleshoot
 
->If you have any problems with laser scan it probably means that you don't have a dedicated graphic card (or lack appropriate drivers). If that's the case then you'll have to change couple of things in `/rosbot_description/urdf/rosbot_gazebo` file: <br><br>
->Find:   `<!-- If you cant't use your GPU comment RpLidar using GPU and uncomment RpLidar using CPU gazebo plugin. -->`
-next coment RpLidar using GPU using `<!-- -->` from `<gazebo>` to `</gazebo>` like below:
-> ```xml
-> <!-- gazebo reference="rplidar">
->   <sensor type="gpu_ray" name="head_rplidar_sensor">
->     <pose>0 0 0 0 0 0</pose>
->     <visualize>false</visualize>
->     <update_rate>40</update_rate>
->     <ray>
->       <scan>
->         <horizontal>
->           <samples>720</samples>
->           <resolution>1</resolution>
->           <min_angle>-3.14159265</min_angle>
->           <max_angle>3.14159265</max_angle>
->         </horizontal>
->       </scan>
->       <range>
->         <min>0.2</min>
->         <max>30.0</max>
->         <resolution>0.01</resolution>
->       </range>
->       <noise>
->         <type>gaussian</type>
->         <mean>0.0</mean>
->         <stddev>0.01</stddev>
->       </noise>
->     </ray>
->     <plugin name="gazebo_ros_head_rplidar_controller" 
->filename="libgazebo_ros_gpu_laser.so">
->      <topicName>/rosbot/laser/scan</topicName>
->       <frameName>rplidar</frameName>
->     </plugin>
->   </sensor>
-> </gazebo -->
->```
->
->Now uncomment RpLidar using CPU plugin removing `<!-- -->`.
->
->If you want to make your laser scan visible just change:
->```xml
-><visualize>false</visualize>
->```
->to:
->```xml
-><visualize>true</visualize>
->```
->in the same plug in.
+Here goes the description of the problems encountered and how they were solved.
