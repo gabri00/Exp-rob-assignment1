@@ -87,6 +87,18 @@ roslaunch rosbot_gazebo real_rosbot.launch
 
 Here goes the description of the packages.
 
+### Pub/sub architecture
+
+##### Gazebo rqt graph
+
+![Gazebo rqt](images/sim_rqt.png)
+
+##### Rosbot rqt graph
+
+![Rosbot rqt](images/rosbot_rqt.png)
+
+Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/rgb`.
+
 ### Flowchart
 
 ![Flowchart](./media/flowchart.png)
