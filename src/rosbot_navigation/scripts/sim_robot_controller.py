@@ -23,7 +23,7 @@ class sim_robot_controller:
         self.marker_id = 0
         self.err_yaw = 0.0
         
-        # Publisher
+        # Publishers
         self.image_pub = rospy.Publisher("/output/image_raw/compressed",CompressedImage, queue_size=1)
         self.vel_pub = rospy.Publisher("/cmd_vel",Twist, queue_size=1)
         self.camera_pub = rospy.Publisher("/exp_rob/camera_position_controller/command",Float64, queue_size=1)
@@ -36,7 +36,8 @@ class sim_robot_controller:
         rospy.Subscriber('/marker/id', Int32, self.marker_id_callback, queue_size=1)
         rospy.Subscriber('/marker/center', Point, self.marker_center_callback, queue_size=1)
         rospy.Subscriber('/gazebo/link_states', LinkStates, self.joint_states_callback, queue_size=1)
-        
+
+    # Joint states callback
     def joint_states_callback(self, msg : LinkStates):
         quaternion_camera_link = (
             msg.pose[10].orientation.x,
@@ -62,28 +63,36 @@ class sim_robot_controller:
 
         self.err_yaw = angle
 
+    # Callback to get the center of the camera
     def camera_center_callback(self, msg : CameraInfo):
         self.camera_center.x = msg.width / 2
         self.camera_center.y = msg.height / 2 
-        
+
+    # Callback to get the ID of the marker
     def marker_id_callback(self, msg : Int32):
         self.marker_id = msg.data
-        
+
+    # Callback to get the center of the marker        
     def marker_center_callback(self, msg : Point):
         self.marker_center.x = msg.x
         self.marker_center.y = msg.y
 
+    # Detection ack callback
     def detected_callback(self, msg : Bool):
         self.detected_ack = msg.data
 
+    # Reached ack callback
     def reached_callback(self, msg : Bool):
         self.reached_ack = msg.data
 
+    # Control loop, runs every time a new image is published
     def control_loop(self, msg : CompressedImage):
+        # Proceed only if there are markers left
         if self.markers:
             vel_camera = Float64()
             vel_robot = Twist()
 
+            # If the marker is detected and it is the one we are looking for, else rotate the camera
             if self.detected_ack and self.marker_id == self.markers[0]:
                 vel_camera = 0.0
 

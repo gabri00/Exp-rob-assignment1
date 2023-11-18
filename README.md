@@ -85,21 +85,31 @@ roslaunch rosbot_gazebo real_rosbot.launch
 
 ## Description of the packages
 
-Here goes the description of the packages.
+This project consists in making the Husarion Rosbot detect the ArUco markers in order.
+
+The [marker publisher node](/src/aruco_ros/src/marker_publish.cpp) is responsible of detecting the markers and communicating the ID and center of the marker to the *controller node*. This node also communicates to the *controller node* when the desired marker has been reached.
+
+The controller node is provided in two formats:
+- The [gazebo simulation controller](/src/rosbot_navigation/scripts/sim_robot_controller.py) which controls the robot in a simulated environment with Gazebo. In this simulation the camera can rotate to detect the markers.
+- The [real robot controller](/src/rosbot_navigation/scripts/real_robot_controller.py) which controls the real rosbot. In this case the camera is fixed and the whole robot has to rotate to detect the markers.
+
+The functioning of the controllers is described in the [flowcharts below](#flowcharts).
+
+To control the camera a *joint state controller* has been added in the rosbot_description package.
 
 ### Pub/sub architecture
 
-##### Gazebo rqt graph
+#### Gazebo rqt graph
 
 ![Gazebo rqt](images/sim_rqt.png)
 
-##### Rosbot rqt graph
+#### Rosbot rqt graph
 
 ![Rosbot rqt](images/rosbot_rqt.png)
 
 Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/rgb`.
 
-### Flowchart
+### Flowcharts
 
 ![Flowchart](./media/flowchart.png)
 
