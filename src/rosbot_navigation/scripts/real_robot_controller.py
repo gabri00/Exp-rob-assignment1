@@ -23,8 +23,8 @@ class real_robot_controller:
         self.vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
 
         # Subscribers
-        rospy.Subscriber("/camera/color/image_raw/compressed", CompressedImage, self.control_loop, queue_size=1)
-        rospy.Subscriber("/camera/color/camera_info", CameraInfo, self.camera_center_callback, queue_size=1)
+        rospy.Subscriber("/camera/rgb/image_raw/compressed", CompressedImage, self.control_loop, queue_size=1)
+        rospy.Subscriber("/camera/rgb/camera_info", CameraInfo, self.camera_center_callback, queue_size=1)
         rospy.Subscriber("/ack/detected", Bool, self.detected_callback, queue_size=1)
         rospy.Subscriber("/ack/reached", Bool, self.reached_callback, queue_size=1)
         rospy.Subscriber('/marker/id', Int32, self.marker_id_callback, queue_size=1)
