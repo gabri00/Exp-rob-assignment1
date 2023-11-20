@@ -17,7 +17,7 @@ class real_robot_controller:
         self.marker_center = Point()
         self.markers = [11, 12, 13, 15]
         self.marker_id = 0
-        
+
         # Publishers
         self.image_pub = rospy.Publisher("/output/image_raw/compressed", CompressedImage, queue_size=1)
         self.vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=1)
@@ -31,29 +31,29 @@ class real_robot_controller:
         rospy.Subscriber('/marker/center', Point, self.marker_center_callback, queue_size=1)
 
     # Callback to get the center of the camera
-    def camera_center_callback(self, msg : CameraInfo):
+    def camera_center_callback(self, msg):
         self.camera_center.x = msg.width / 2
         self.camera_center.y = msg.height / 2
 
     # Callback to get the ID of the marker
-    def marker_id_callback(self, msg : Int32):
+    def marker_id_callback(self, msg):
         self.marker_id = msg.data
 
     # Callback to get the center of the marker
-    def marker_center_callback(self, msg : Point):
+    def marker_center_callback(self, msg):
         self.marker_center.x = msg.x
         self.marker_center.y = msg.y
 
     # Detection ack callback
-    def detected_callback(self, msg : Bool):
+    def detected_callback(self, msg):
         self.detected_ack = msg.data
 
     # Reached ack callback
-    def reached_callback(self, msg : Bool):
+    def reached_callback(self, msg):
         self.reached_ack = msg.data
 
     # Control loop, runs every time a new image is published
-    def control_loop(self, msg : CompressedImage):
+    def control_loop(self, msg):
         # Proceed only if there are markers left
         if self.markers:
             vel = Twist()
