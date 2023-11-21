@@ -6,10 +6,10 @@
 
 | Name Surname          | ID       |
 | --------------------- | -------- |
-| Gabriele Nicchiarelli | S4822677 |
-| Ivan Terrile          | S4851947 |
-| Miriam Anna Ruggero   | S4881702 |
-| Davide Pisano         | S4363394 |
+| [Gabriele Nicchiarelli](https://github.com/gabri00) | S4822677 |
+| [Ivan Terrile](https://github.com/Ivanterry00)         | S4851947 |
+| [Miriam Anna Ruggero](https://github.com/Miryru)   | S4881702 |
+| [Davide Pisano](https://github.com/DavidePisano)        | S4363394 |
 
 ## Preliminary operations
 
