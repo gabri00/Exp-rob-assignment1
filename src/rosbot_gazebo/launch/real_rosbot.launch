@@ -10,11 +10,6 @@
 
   <!-- Start the aruco marker publisher -->
   <node name="marker_publisher" pkg="aruco_ros" type="marker_publisher" output="screen" />
-  
-  <!-- Start the image view node to show camera view -->
-  <node name="image_view" pkg="image_view" type="image_view" output="screen">
-    <remap from="image" to="/marker_publisher/result"/>
-  </node>
 
   <!-- Start the robot camera control node -->
   <node name="real_robot_controller" pkg="rosbot_navigation" type="real_robot_controller.py" output="screen" />
