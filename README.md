@@ -1,7 +1,5 @@
 # Assignment 1
 
->Note: developed in ROS Noetic
-
 ## Group members
 
 | Name Surname          | ID       |
@@ -27,15 +25,15 @@ cd ~/<your_workspace>
 catkin_make
 ```
 
-## Run the Gazebo simulation
+## Run Gazebo simulations
 
-Run the simulation (with rotating camera):
+Run the simulation with rotating camera:
 
 ```bash
 roslaunch rosbot_gazebo assignment_gazebo.launch
 ```
 
-Run the simulation (with fixed camera):
+Run the simulation with fixed camera:
 
 ```bash
 roslaunch rosbot_gazebo assignment_rosbot.launch
@@ -49,7 +47,7 @@ roslaunch rosbot_gazebo assignment_rosbot.launch
 | ------------ | ---------------- |
 | TP_LINK      | 03694008         |
 
-#### Step 2: add the ROS master URI and user's IP address
+#### Step 2: Add the ROS master URI and user's IP address
 
 Add the following lines at the bottom of the `~/.bashrc` file:
 
@@ -59,6 +57,8 @@ export ROS_IP=<YOUR_IP_ADDRESS>
 ```
 
 #### Step 3: Connect to the robot via SSH
+
+In the local terminal:
 
 ```bash
 ssh husarion@192.168.1.10x
@@ -77,7 +77,7 @@ roslaunch tutorial_pkg all.launch
 
 #### Step 5: Start the simulation
 
-In the local terminal:
+From the local terminal:
 
 ```bash
 roslaunch rosbot_gazebo real_rosbot.launch
@@ -254,23 +254,29 @@ To control the camera a *joint state controller* has been added in the rosbot_de
 
 ### Pub/sub architecture
 
-#### Gazebo rqt graph
+#### Gazebo simulation rqt graph
 
-![Gazebo rqt](images/sim_rqt.png)
+![Gazebo rqt](media/rqt_sim.png)
 
 #### Rosbot rqt graph
 
-![Rosbot rqt](images/rosbot_rqt.png)
+![Rosbot rqt](media/rqt_real.png)
 
-Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/rgb`.
+Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/rgb/`.
 
 ### Flowcharts
 
-![Flowchart](./media/flowchart.png)
+#### Simulation
+
+![Flowchart](media/flowchart_sim.png)
+
+#### Rosbot
+
+![Flowchart](media/flowchart_real.png)
 
 ### Video demo
 
-[![Video demo](./media/video_demo.png)](./media/video_demo.mp4)
+[![Video demo](media/video_demo.png)](media/video_demo.mp4)
 
 ## References
 
@@ -280,7 +286,8 @@ Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/r
 
 - [Aruco ROS](https://github.com/CarmineD8/aruco_ros)
 
-## Troubleshoot
-Here we present the challenges encountered during the development of this project and possible enhancements. An initial improvement could involve associating a specific meaning with each marker (for example, "Marker 11 = approach and then head towards Marker 12" or "Marker 15 = stop"), rather than simply specifying an ordered list of markers to reach. This approach would make the project more modular and flexible, eliminating the need to specify an ordered list of markers each time. By assigning meanings to the markers, it would be possible to create different paths without the need to modify the code for each new use.
+## Further improvements
+
+An initial improvement could involve associating a specific meaning with each marker (for example, "Marker 11 = approach and then head towards Marker 12" or "Marker 15 = stop"), rather than simply specifying an ordered list of markers to reach. This approach would make the project more modular and flexible, eliminating the need to specify an ordered list of markers each time. By assigning meanings to the markers, it would be possible to create different paths without the need to modify the code for each new use.
 
 Another improvement could be to modify the controller to make the robot's movements smoother. As highlighted in the video above, the robot currently exhibits somewhat abrupt movements when transitioning from one marker to another.
