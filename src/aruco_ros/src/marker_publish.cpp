@@ -46,6 +46,9 @@
 #include <aruco_msgs/MarkerArray.h>
 #include <tf/transform_listener.h>
 #include <std_msgs/UInt32MultiArray.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
+#include <geometry_msgs/Point.h>
 
 class ArucoMarkerPublisher
 {
@@ -71,6 +74,10 @@ private:
   image_transport::Publisher debug_pub_;
   ros::Publisher marker_pub_;
   ros::Publisher marker_list_pub_;
+  ros::Publisher detected_ack_pub_;
+  ros::Publisher reached_ack_pub_;
+  ros::Publisher marker_id_pub_;
+  ros::Publisher marker_center_pub_;
   tf::TransformListener tfListener_;
 
   ros::Subscriber cam_info_sub_;
@@ -87,7 +94,7 @@ public:
   {
     image_sub_ = it_.subscribe("/camera/rgb/image_raw", 1, &ArucoMarkerPublisher::image_callback, this);
 
-    nh_.param<bool>("use_camera_info", useCamInfo_, true);
+    nh_.param<bool>("use_camera_info", useCamInfo_, false);
     if (useCamInfo_)
     {
       sensor_msgs::CameraInfoConstPtr msg = ros::topic::waitForMessage<sensor_msgs::CameraInfo>("/camera_info", nh_); //, 10.0);
