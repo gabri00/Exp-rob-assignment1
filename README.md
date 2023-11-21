@@ -281,5 +281,6 @@ Note: in the real Rosbot the topic `/camera/color/` is substituted by `/camera/r
 - [Aruco ROS](https://github.com/CarmineD8/aruco_ros)
 
 ## Troubleshoot
+Here we present the challenges encountered during the development of this project and possible enhancements. An initial improvement could involve associating a specific meaning with each marker (for example, "Marker 11 = approach and then head towards Marker 12" or "Marker 15 = stop"), rather than simply specifying an ordered list of markers to reach. This approach would make the project more modular and flexible, eliminating the need to specify an ordered list of markers each time. By assigning meanings to the markers, it would be possible to create different paths without the need to modify the code for each new use.
 
-Here goes the description of the problems encountered and how they were solved.
+Another improvement could be to modify the controller to make the robot's movements smoother. As highlighted in the video above, the robot currently exhibits somewhat abrupt movements when transitioning from one marker to another.
