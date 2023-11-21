@@ -167,7 +167,7 @@ To better understand the logic, both the controllers are described in the [flowc
 
 ### Video demo
 
-[![Video demo](media/rosbot_demo.png)](media/rosbot_demo.mp4)
+https://github.com/gabri00/Exp-rob-assignment1/assets/31885249/bebe96e4-715c-47d5-bba0-d82ca430b572
 
 ## References
 
