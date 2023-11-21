@@ -248,7 +248,7 @@ For the [sim robot controller](/src/rosbot_navigation/scripts/sim_robot_controll
                 self.err_yaw = angle
         ```
 
-TheIn any case, the functioning of the controllers is described in the [flowcharts below](#flowcharts).
+In any case, the functioning of the controllers is described in the [flowcharts below](#flowcharts) below.
 
 To control the camera a *joint state controller* has been added in the rosbot_description package.
 
