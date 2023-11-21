@@ -163,13 +163,7 @@ To better understand the logic, both the controllers are described in the [flowc
 
 ### Flowcharts
 
-#### Simulation
-
-![Flowchart](media/flowchart_sim.png)
-
-#### Rosbot
-
-![Flowchart](media/flowchart_real.png)
+![Flowcharts](media/flowcharts.png)
 
 ### Video demo
 
